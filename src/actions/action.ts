@@ -9,7 +9,7 @@ export const getImtData = cache(async () => {
   return imt;
 });
 
-export const getImtByNohp = cache(async (no_hp: number) => {
+export const getImtByNohp = cache(async (no_hp: string) => {
   const imt = await db.query.imtTable.findMany({
     where: eq(imtTable.no_hp, no_hp),
   });

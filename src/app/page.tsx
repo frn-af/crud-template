@@ -1,8 +1,22 @@
+"use client"
 import { Crud } from "@/components/crud";
+import { Result } from "@/components/result-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Data } from "@/lib/db/schema";
+import { useState } from "react";
 
 export default function Home() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [formData, setFormData] = useState<Data>()
+
+  const handleOpen = (data: Data) => {
+    setFormData(data)
+    setIsOpen(true)
+  }
+  const handleClose = () => {
+    setIsOpen(false)
+  }
   return (
     <main className="h-full max-w-screen-md mx-auto p-10">
       <div className="w-full flex justify-center items-center h-full p-4">
@@ -16,7 +30,8 @@ export default function Home() {
             </div>
           </CardHeader>
           <CardContent>
-            <Crud />
+            <Crud onSubmitAction={handleOpen} />
+            <Result isOpen={isOpen} onClose={handleClose} data={formData!} />
           </CardContent>
         </Card>
       </div>

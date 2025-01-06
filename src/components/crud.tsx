@@ -1,6 +1,4 @@
-
 "use client"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -16,17 +14,32 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { getImtByNohp, newData } from "@/actions/action"
+import { Data } from "@/lib/db/schema"
+import { useState } from "react"
+
+type CrudProps = {
+  onSubmitAction: (data: Data) => void
+}
 
 const FormSchema = z.object({
   name: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
-  no_hp: z.coerce.number().min(10, { message: "No HP must be at least 10 characters." }),
-  tinggi_badan: z.coerce.number().min(1),
-  berat_badan: z.coerce.number().min(1)
+  no_hp: z.string().min(10, {
+    message: "No HP must be at least 10 characters.",
+  }),
+  tinggi_badan: z.coerce.number().min(1, {
+    message: "Tinggi badan must be at least 1 characters.",
+  }),
+  berat_badan: z.coerce.number().min(1, {
+    message: "Berat badan must be at least 1 characters.",
+  })
 })
 
-export function Crud() {
+export function Crud({ onSubmitAction }: CrudProps) {
+  const [loading, setLoading] = useState(false)
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -37,20 +50,43 @@ export function Crud() {
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  const formSubmit = async (data: z.infer<typeof FormSchema>) => {
+    setLoading(true)
+
+    const checkNoHP = await getImtByNohp(data.no_hp)
+    if (checkNoHP.length > 0) {
+      toast({
+        title: "No HP already exist",
+        description: "Please use another No HP",
+        variant: "destructive",
+      })
+      setLoading(false)
+      return
+    }
+
+    const addData = await newData(data)
+    if (addData instanceof Error || !addData) {
+      toast({
+        title: "Failed submitted data",
+        description: "Please try again later",
+        variant: "destructive",
+      })
+      setLoading(false)
+      return
+    }
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Data submitted successfully",
+      description: "Thank you for submitting your data",
+      variant: "default",
     })
+    onSubmitAction(addData[0]!)
+    setLoading(false)
+    form.reset()
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -58,7 +94,7 @@ export function Crud() {
             <FormItem>
               <FormLabel>Nama</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="Nama" {...field} />
+                <Input type="tel" placeholder="Nama" required {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,9 +108,10 @@ export function Crud() {
               <FormLabel>No.HP</FormLabel>
               <FormControl>
                 <Input
-                  type="tel"
+                  type="text"
                   placeholder="08XXXXXXXXXX"
                   {...field}
+                  required
                   value={field.value || ""}
                   onChange={(e) => {
                     const value = e.target.value
@@ -91,12 +128,13 @@ export function Crud() {
           name="tinggi_badan"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tinggi Badan</FormLabel>
+              <FormLabel>Tinggi Badan *(m)</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
                   placeholder="Tinggi badan anda"
                   {...field}
+                  required
                   value={field.value || ""}
                   onChange={(e) => {
                     const value = e.target.value
@@ -113,12 +151,13 @@ export function Crud() {
           name="berat_badan"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Berat Badan</FormLabel>
+              <FormLabel>Berat Badan *(kg)</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
                   placeholder="Berat badan anda"
                   {...field}
+                  required
                   value={field.value || ""}
                   onChange={(e) => {
                     const value = e.target.value
@@ -130,7 +169,13 @@ export function Crud() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? (
+            "Loading..."
+          ) : (
+            "Hitung"
+          )}
+        </Button>
       </form>
     </Form>
   )
