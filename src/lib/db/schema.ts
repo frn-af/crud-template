@@ -1,12 +1,13 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
-export const imt = pgTable("imt", {
+export const imtTable = pgTable("imt", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   no_hp: integer().notNull(),
   tinggi_badan: integer().notNull(),
   berat_badan: integer().notNull(),
+  timestamp: timestamp('timestamp1').notNull().defaultNow(),
 });
 
-export const Data = typeof imt.$inferSelect;
-export const InsertData = typeof imt.$inferInsert;
+export type Data = typeof imtTable.$inferSelect;
+export type InsertData = typeof imtTable.$inferInsert;
