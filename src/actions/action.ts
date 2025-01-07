@@ -5,38 +5,58 @@ import { eq } from "drizzle-orm";
 import { cache } from "react";
 
 export const getImtData = cache(async () => {
-  const imt = await db.query.imtTable.findMany();
-  return imt;
+  try {
+    const imt = await db.query.imtTable.findMany();
+    return imt;
+  } catch (error) {
+    throw error;
+  }
 });
 
-export const getImtByNohp = cache(async (no_hp: string) => {
-  const imt = await db.query.imtTable.findMany({
-    where: eq(imtTable.no_hp, no_hp),
-  });
-  return imt;
-});
+export const getImtByNohp = async (no_hp: string) => {
+  try {
+    const imt = await db.query.imtTable.findMany({
+      where: eq(imtTable.no_hp, no_hp),
+    });
+    return imt;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const newData = async (data: InsertData) => {
-  const newImtData = await db.insert(imtTable).values(data).returning();
-  return newImtData;
+  try {
+    const newImtData = await db.insert(imtTable).values(data).returning();
+    return newImtData;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const updateData = async (data: Data) => {
-  const updateImtData = await db
-    .update(imtTable)
-    .set(data)
-    .where(eq(imtTable.id, data.id ?? 0))
-    .returning();
-  const getImtData = await db.query.imtTable.findFirst({
-    where: eq(imtTable.id, updateImtData[0]!.id),
-  });
-  return getImtData;
+  try {
+    const updateImtData = await db
+      .update(imtTable)
+      .set(data)
+      .where(eq(imtTable.id, data.id ?? 0))
+      .returning();
+    const getImtData = await db.query.imtTable.findFirst({
+      where: eq(imtTable.id, updateImtData[0]!.id),
+    });
+    return getImtData;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const deleteData = async (id: number) => {
-  const deleteImtData = await db
-    .delete(imtTable)
-    .where(eq(imtTable.id, id))
-    .returning();
-  return deleteImtData;
+  try {
+    const deleteImtData = await db
+      .delete(imtTable)
+      .where(eq(imtTable.id, id))
+      .returning();
+    return deleteImtData;
+  } catch (error) {
+    throw error;
+  }
 }
