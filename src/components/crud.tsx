@@ -128,7 +128,7 @@ export function Crud({ onSubmitAction }: CrudProps) {
           name="tinggi_badan"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tinggi Badan *(m)</FormLabel>
+              <FormLabel>Tinggi Badan *(cm)</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
