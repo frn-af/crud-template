@@ -2,16 +2,15 @@
 import { db } from "@/lib/db/db";
 import { Data, imtTable, InsertData } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { cache } from "react";
 
-export const getImtData = cache(async () => {
+export const getImtData = async () => {
   try {
     const imt = await db.query.imtTable.findMany();
     return imt;
   } catch (error) {
     throw error;
   }
-});
+};
 
 export const getImtByNohp = async (no_hp: string) => {
   try {
