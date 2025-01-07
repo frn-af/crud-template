@@ -11,8 +11,7 @@ const bmiCategories: BMICategory[] = [
 ];
 
 export const calculateImt = (data: Data) => {
-  const imt = data.berat_badan / (data.tinggi_badan * data.berat_badan);
-
+  const imt = data?.berat_badan / (data?.tinggi_badan / 100 * data?.tinggi_badan / 100);
   const category = bmiCategories.find((c) => imt >= c.min && imt < c.max);
   return category ? category.label : "Unknown";
 }
