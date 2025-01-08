@@ -1,46 +1,61 @@
 "use client"
 
-import { useState, useEffect } from 'react';
-import { getImtData } from '@/actions/action';
+import { useState, useEffect, useCallback } from 'react';
+import { getImtData, updateData } from '@/actions/action';
 import { Button } from '@/components/ui/button';
 import { Data } from '@/lib/db/schema';
 import { Result } from '@/components/result-dialog';
 import Link from 'next/link';
+import { EditForm } from '@/components/update-form';
 
 export default function Imt() {
-  const [selectedData, setSelectedData] = useState<Data | null>(null); // Store selected data for dialog
-  const [data, setData] = useState<Data[] | null>(null); // IMT data
-  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedData, setSelectedData] = useState<Data | null>(null);
+  const [data, setData] = useState<Data[] | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const imtData = await getImtData();
-        setData(imtData);
-      } catch (err) {
-        setError('Failed to fetch IMT data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+  const fetchData = useCallback(async () => {
+    try {
+      const imtData = await getImtData();
+      setData(imtData);
+    } catch {
+      setError('Failed to fetch IMT data');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleOpen = (item: Data) => {
-    setSelectedData(item); // Set the selected item data
-  };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const handleClose = () => {
-    setSelectedData(null); // Clear the selected data when closing
-  };
+  const handleOpen = useCallback((item: Data) => setSelectedData(item), []);
+  const handleClose = useCallback(() => setSelectedData(null), []);
+
+  const handleUpdate = useCallback(
+    async (updatedItem: Data) => {
+      if (!data) return;
+      const updatedData = await updateData(updatedItem, updatedItem.id);
+      if (updatedData instanceof Error || !updatedData) {
+        console.error('Failed to update item');
+        return;
+      }
+      setData((prevData) =>
+        prevData
+          ? prevData.map((item) =>
+            item.id === updatedItem.id ? updatedItem : item
+          )
+          : null
+      );
+    },
+    [data]
+  );
 
   if (loading) {
     return (
-      <div className='h-full flex justify-center items-center'><div>
-        Loading...
-      </div></div>
+      <div className="h-full flex justify-center items-center">
+        <div>Loading...</div>
+      </div>
     );
   }
 
@@ -50,39 +65,35 @@ export default function Imt() {
 
   return (
     <main className="h-full max-w-screen-md mx-auto p-10">
-      <div>
-        <div className="flex justify-between">
-          <h3>IMT List</h3>
-          <Link href={"/"}>
-            <Button className="capitalize">
-              kembali
-            </Button>
-          </Link>
-        </div>
-        <div className="w-full space-y-4 mt-6">
-          {data?.map((item) => (
-            <div key={item.id} className="flex items-center justify-between w-full border border-primary rounded p-4">
-              <div>
-                <p>Nama: {item.name}</p>
-                <p>No HP: {item.no_hp}</p>
-              </div>
-              <div>
-                <Button className="capitalize" onClick={() => handleOpen(item)}>
-                  Lihat Hasil IMT
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <header className="flex justify-between">
+        <h3>IMT List</h3>
+        <Link href="/">
+          <Button className="capitalize">kembali</Button>
+        </Link>
+      </header>
 
-      {/* Pass selectedData to the Result dialog */}
+      <section className="w-full space-y-4 mt-6">
+        {data?.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center justify-between w-full border border-primary rounded p-4"
+          >
+            <div>
+              <p>Nama: {item.name}</p>
+              <p>No HP: {item.no_hp}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button className="capitalize" onClick={() => handleOpen(item)}>
+                Lihat Hasil IMT
+              </Button>
+              <EditForm oldData={item} onUpdate={handleUpdate} />
+            </div>
+          </div>
+        ))}
+      </section>
+
       {selectedData && (
-        <Result
-          isOpen={!!selectedData}
-          onClose={handleClose}
-          data={selectedData}
-        />
+        <Result isOpen={!!selectedData} onClose={handleClose} data={selectedData} />
       )}
     </main>
   );
