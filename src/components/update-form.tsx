@@ -32,6 +32,7 @@ const FormSchema = z.object({
 
 export function EditForm({ oldData, onUpdate }: EditProps) {
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -66,10 +67,11 @@ export function EditForm({ oldData, onUpdate }: EditProps) {
     setLoading(false);
     form.reset();
     onUpdate({ ...oldData, ...data });
+    setIsOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Edit</Button>
       </DialogTrigger>
@@ -166,4 +168,3 @@ export function EditForm({ oldData, onUpdate }: EditProps) {
     </Dialog>
   );
 }
-
