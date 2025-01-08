@@ -1,12 +1,13 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { getImtData, updateData } from '@/actions/action';
+import { getImtData, updateData, deleteData } from '@/actions/action';
 import { Button } from '@/components/ui/button';
 import { Data } from '@/lib/db/schema';
 import { Result } from '@/components/result-dialog';
 import Link from 'next/link';
 import { EditForm } from '@/components/update-form';
+import { DeleteDialog } from '@/components/delete';
 
 export default function Imt() {
   const [selectedData, setSelectedData] = useState<Data | null>(null);
@@ -51,6 +52,21 @@ export default function Imt() {
     [data]
   );
 
+  const handleDelete = useCallback(
+    async (id: number) => {
+      if (!data) return;
+      const response = await deleteData(id);
+      if (response instanceof Error || !response) {
+        console.error('Failed to delete item');
+        return;
+      }
+      setData((prevData) =>
+        prevData ? prevData.filter((item) => item.id !== id) : null
+      );
+    },
+    [data]
+  );
+
   if (loading) {
     return (
       <div className="h-full flex justify-center items-center">
@@ -87,6 +103,7 @@ export default function Imt() {
                 Lihat Hasil IMT
               </Button>
               <EditForm oldData={item} onUpdate={handleUpdate} />
+              <DeleteDialog data={item} onDelete={() => handleDelete(item.id)} />
             </div>
           </div>
         ))}
@@ -98,4 +115,3 @@ export default function Imt() {
     </main>
   );
 }
-
