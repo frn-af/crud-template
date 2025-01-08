@@ -16,7 +16,7 @@ type ResultProps = {
   data: Data
 }
 
-export function Result({ isOpen, onClose, data }: ResultProps) {
+export function ResultDialog({ isOpen, onClose, data }: ResultProps) {
   const result = calculateImt(data)
   return (
     <Dialog open={isOpen} onOpenChange={onClose} >

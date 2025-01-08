@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { getImtData, updateData, deleteData } from '@/actions/action';
 import { Button } from '@/components/ui/button';
 import { Data } from '@/lib/db/schema';
-import { Result } from '@/components/result-dialog';
 import Link from 'next/link';
-import { EditForm } from '@/components/update-form';
-import { DeleteDialog } from '@/components/delete';
+import { ResultDialog } from '@/components/result-dialog';
+import { DeleteDialog } from '@/components/delete-dialog';
+import { UpdateForm } from '@/components/update-form';
 
 export default function Imt() {
   const [selectedData, setSelectedData] = useState<Data | null>(null);
@@ -102,7 +102,7 @@ export default function Imt() {
               <Button className="capitalize" onClick={() => handleOpen(item)}>
                 Lihat Hasil IMT
               </Button>
-              <EditForm oldData={item} onUpdate={handleUpdate} />
+              <UpdateForm oldData={item} onUpdate={handleUpdate} />
               <DeleteDialog data={item} onDelete={() => handleDelete(item.id)} />
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function Imt() {
       </section>
 
       {selectedData && (
-        <Result isOpen={!!selectedData} onClose={handleClose} data={selectedData} />
+        <ResultDialog isOpen={!!selectedData} onClose={handleClose} data={selectedData} />
       )}
     </main>
   );

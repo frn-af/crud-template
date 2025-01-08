@@ -1,6 +1,6 @@
 "use client";
-import { Crud } from "@/components/crud";
-import { Result } from "@/components/result-dialog";
+import { CreateForm } from "@/components/create-form";
+import { ResultDialog } from "@/components/result-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Data } from "@/lib/db/schema";
@@ -33,8 +33,8 @@ export default function Home() {
             </div>
           </CardHeader>
           <CardContent>
-            <Crud onSubmitAction={handleOpen} />
-            <Result isOpen={isOpen} onClose={handleClose} data={formData!} />
+            <CreateForm onSubmitAction={handleOpen} />
+            <ResultDialog isOpen={isOpen} onClose={handleClose} data={formData!} />
           </CardContent>
         </Card>
       </div>

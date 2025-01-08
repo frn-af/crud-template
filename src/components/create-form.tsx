@@ -37,7 +37,7 @@ const FormSchema = z.object({
   })
 })
 
-export function Crud({ onSubmitAction }: CrudProps) {
+export function CreateForm({ onSubmitAction }: CrudProps) {
   const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof FormSchema>>({

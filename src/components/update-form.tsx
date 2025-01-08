@@ -30,7 +30,7 @@ const FormSchema = z.object({
   berat_badan: z.coerce.number().min(1, { message: "Weight must be valid." }),
 });
 
-export function EditForm({ oldData, onUpdate }: EditProps) {
+export function UpdateForm({ oldData, onUpdate }: EditProps) {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
